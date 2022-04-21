@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <time.h>
 #include "config.h"
 #include "snake.h"
@@ -51,8 +52,8 @@ int main(void)
 
     snake_init(5, 5);
     snake_food_init(7, 7);
-
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
+    srand(current_time);
     //--------------------------------------------------------------------------------------
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
@@ -80,7 +81,9 @@ int main(void)
             break;
         }
         snake_update(current_time);
-        snake_food_update();
+        unsigned int x_new_food_pos = rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
+        unsigned int y_new_food_pos = rand() % (SCREEN_HEIGHT_BLOCK_CNT - 1);
+        snake_food_update(x_new_food_pos, y_new_food_pos);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -122,7 +125,7 @@ static void prv_grid_draw(void)
 
 static void prv_snake_draw(void)
 {
-    snake_elem_t *snake_elem = snake_get_grid();
+    snake_elem_t *snake_elem = snake_get_snake();
 
     for (int i = 0; i < snake_get_len(); i++)
     {

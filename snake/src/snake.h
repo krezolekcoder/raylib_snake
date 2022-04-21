@@ -21,10 +21,10 @@ void snake_set_head_movement(const movement_t movement);
 void snake_update(const float current_time);
 
 unsigned int snake_get_len(void);
-snake_elem_t *snake_get_grid(void);
+snake_elem_t *snake_get_snake(void);
 
 void snake_food_init(unsigned int x_food_start_pos, unsigned int y_food_start_pos);
-void snake_food_update(void);
+void snake_food_update(unsigned int x_food_new_pos, unsigned int y_food_new_pos);
 unsigned int snake_food_get_x_pos(void);
 unsigned int snake_food_get_y_pos(void);
 
