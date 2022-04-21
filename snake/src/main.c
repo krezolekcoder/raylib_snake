@@ -21,7 +21,7 @@
 
 /** How to build
  * Enter in terminal :
- * gcc main.c -o game.exe -O3 -Wall -std=c99 -Wno-missing-braces -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+ * gcc src/main.c src/snake.c -o game.exe -O3 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
  * Compiler : gcc (i686-posix-dwarf-rev0, Built by MinGW-W64 project) 8.1.0
  **/
 

@@ -31,6 +31,7 @@ void snake_init(unsigned int x_start_head_pos, unsigned int y_start_head_pos)
     prv_snake_grid[SNAKE_HEAD_IDX].x_pos = x_start_head_pos; // rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
     prv_snake_grid[SNAKE_HEAD_IDX].y_pos = y_start_head_pos; // rand() % (SCREEN_HEIGHT_BLOCK_CNT - 1);
     prv_snake_head_movement = MOVEMENT_RIGHT;
+    prv_snake_movement_update_time = 0.0f;
 }
 
 void snake_update(float current_time)
@@ -39,11 +40,12 @@ void snake_update(float current_time)
     {
 
         prv_snake_update_head();
+        printf("snake head %d %d \r\n", prv_snake_grid[SNAKE_HEAD_IDX].x_pos, prv_snake_grid[SNAKE_HEAD_IDX].y_pos);
 
         if ((prv_snake_grid[SNAKE_HEAD_IDX].x_pos == prv_snake_food.x_pos) && (prv_snake_grid[SNAKE_HEAD_IDX].y_pos == prv_snake_food.y_pos))
         {
             prv_snake_food.is_eaten = true;
-            // prv_snake_len++; // TODO
+            printf("snake food eaten \r\n");
         }
 
         prv_snake_movement_update_time = current_time;
@@ -65,10 +67,12 @@ void snake_food_init(unsigned int x_food_start_pos, unsigned int y_food_start_po
 
 void snake_food_update(void)
 {
+
     if (prv_snake_food.is_eaten)
     {
         prv_snake_food.x_pos = rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
         prv_snake_food.y_pos = rand() % (SCREEN_HEIGHT_BLOCK_CNT - 1);
+        prv_snake_len++;
         prv_snake_food.is_eaten = false;
     }
 }
