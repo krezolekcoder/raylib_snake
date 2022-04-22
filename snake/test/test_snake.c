@@ -18,7 +18,7 @@ void test_snake_moving_simple(void)
     snake_init(5, 5);
 
     snake_set_head_movement(MOVEMENT_RIGHT);
-    snake_elem_t *snake = snake_get_snake();
+    snake_elem_t *snake = snake_get_snake_coords();
 
     float current_time = 0.0f;
 
@@ -31,7 +31,7 @@ void test_snake_moving_simple(void)
 
 void test_snake_moving_complex(void)
 {
-    snake_elem_t *snake = snake_get_snake();
+    snake_elem_t *snake = snake_get_snake_coords();
 
     snake_set_head_movement(MOVEMENT_DOWN);
 
@@ -51,7 +51,7 @@ void test_snake_moving_complex(void)
 void test_snake_food_eating(void)
 {
     snake_food_init(1, 1);
-    snake_elem_t *snake = snake_get_snake();
+    snake_elem_t *snake = snake_get_snake_coords();
     /* initial snake position is x 0 y 0 food is 1 1 so we must go 1 to the right 1 down  virtually */
 
     float current_time = 0.0f;
@@ -76,7 +76,7 @@ void test_snake_len_increased_after_eaten_food(void)
 {
     snake_food_init(1, 1);
 
-    snake_elem_t *snake = snake_get_snake();
+    snake_elem_t *snake = snake_get_snake_coords();
     /* initial snake position is x 0 y 0 food is 1 1 so we must go 1 to the right 1 down  virtually */
 
     float current_time = 0.0f;
@@ -100,7 +100,7 @@ void test_snake_len_increased_after_eaten_food(void)
 void test_snake_next_brick_coords_after_food_eating(void)
 {
     snake_food_init(1, 1);
-    snake_elem_t *snake = snake_get_snake();
+    snake_elem_t *snake = snake_get_snake_coords();
 
     float current_time = 0.0f;
     snake_set_head_movement(MOVEMENT_RIGHT);
@@ -122,7 +122,7 @@ void test_snake_next_brick_coords_after_food_eating(void)
 void test_snake_second_brick_coords_after_updated_movement(void)
 {
     snake_food_init(1, 1);
-    snake_elem_t *snake = snake_get_snake();
+    snake_elem_t *snake = snake_get_snake_coords();
 
     /* Move snake to food position and eat it */
     float current_time = 0.0f;
@@ -147,4 +147,75 @@ void test_snake_second_brick_coords_after_updated_movement(void)
     coords_actual[1] = snake[1].y_pos;
 
     TEST_ASSERT_EQUAL_INT_ARRAY(coords_expected, coords_actual, 2);
+}
+
+void test_snake_increased_len_after_eating_more_food(void)
+{
+    snake_food_init(1, 1);
+    snake_elem_t *snake = snake_get_snake_coords();
+
+    float current_time = 0.0f;
+    snake_set_head_movement(MOVEMENT_RIGHT);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_DOWN);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_food_update(2, 2);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_RIGHT);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_food_update(2, 2);
+
+    TEST_ASSERT_EQUAL_INT(3, snake_get_len());
+}
+
+/* snake eats three blocks and expands its len to 3 - make sure if third brick also is moving correctly */
+
+void test_snake_tail_coords_with_increased_len(void)
+{
+    snake_food_init(1, 1);
+    snake_elem_t *snake = snake_get_snake_coords();
+
+    unsigned int elems_expected[6];
+    unsigned int elems_actual[6];
+
+    float current_time = 0.0f;
+    snake_set_head_movement(MOVEMENT_RIGHT);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_DOWN);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_food_update(2, 2);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_RIGHT);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_food_update(5, 5);
+
+    for (int i = 0; i < 5; i++)
+    {
+        current_time += 0.21f;
+        snake_update(current_time);
+    }
+
+    elems_expected[0] = 7;
+    elems_expected[1] = 2;
+    elems_expected[2] = 6;
+    elems_expected[3] = 2;
+    elems_expected[4] = 5;
+    elems_expected[5] = 2;
+
+    elems_actual[0] = snake[0].x_pos;
+    elems_actual[1] = snake[0].y_pos;
+    elems_actual[2] = snake[1].x_pos;
+    elems_actual[3] = snake[1].y_pos;
+    elems_actual[4] = snake[2].x_pos;
+    elems_actual[5] = snake[2].y_pos;
+
+    TEST_ASSERT_EQUAL_INT_ARRAY(elems_expected, elems_actual, 6);
 }

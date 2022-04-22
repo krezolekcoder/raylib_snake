@@ -38,19 +38,20 @@ void snake_update(float current_time)
 {
     if (current_time - prv_snake_movement_update_time >= SNAKE_UPDATE_TIMEOUT_SEC)
     {
-        for (int i = 1; i < prv_snake_len; i++)
+        for (int i = prv_snake_len - 1; i >= 1; i--)
         {
+
             prv_snake[i].x_pos = prv_snake[i - 1].x_pos;
             prv_snake[i].y_pos = prv_snake[i - 1].y_pos;
         }
 
         prv_snake_update_head();
-        printf("snake head %d %d len %d\r\n", prv_snake[SNAKE_HEAD_IDX].x_pos, prv_snake[SNAKE_HEAD_IDX].y_pos, prv_snake_len);
+        // printf("snake head %d %d len %d\r\n", prv_snake[SNAKE_HEAD_IDX].x_pos, prv_snake[SNAKE_HEAD_IDX].y_pos, prv_snake_len);
 
         if ((prv_snake[SNAKE_HEAD_IDX].x_pos == prv_snake_food.x_pos) && (prv_snake[SNAKE_HEAD_IDX].y_pos == prv_snake_food.y_pos))
         {
             prv_snake_food.is_eaten = true;
-            printf("snake food eaten \r\n");
+            // printf("snake food eaten \r\n");
         }
 
         prv_snake_movement_update_time = current_time;
@@ -84,7 +85,7 @@ void snake_food_update(unsigned int x_food_new_pos, unsigned int y_food_new_pos)
     }
 }
 
-snake_elem_t *snake_get_snake(void)
+snake_elem_t *snake_get_snake_coords(void)
 {
     return &prv_snake[0];
 }

@@ -125,7 +125,7 @@ static void prv_grid_draw(void)
 
 static void prv_snake_draw(void)
 {
-    snake_elem_t *snake_elem = snake_get_snake();
+    snake_elem_t *snake_elem = snake_get_snake_coords();
 
     for (int i = 0; i < snake_get_len(); i++)
     {
