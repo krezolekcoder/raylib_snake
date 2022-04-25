@@ -81,9 +81,20 @@ int main(void)
             break;
         }
         snake_update(current_time);
-        unsigned int x_new_food_pos = rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
-        unsigned int y_new_food_pos = rand() % (SCREEN_HEIGHT_BLOCK_CNT - 1);
-        snake_food_update(x_new_food_pos, y_new_food_pos);
+
+        snake_food_update();
+
+        if (snake_food_get_status() == FOOD_GENERATE_NEW)
+        {
+            bool result = false;
+            do
+            {
+                unsigned int x_new_food_pos = rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
+                unsigned int y_new_food_pos = rand() % (SCREEN_HEIGHT_BLOCK_CNT - 1);
+
+                result = snake_food_create_new_food(x_new_food_pos, y_new_food_pos);
+            } while (result == false);
+        }
         //----------------------------------------------------------------------------------
 
         // Draw

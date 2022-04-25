@@ -13,7 +13,7 @@ typedef struct
 {
     int x_pos;
     int y_pos;
-    int is_eaten;
+    snake_food_status_t food_status;
 } snake_food_t;
 
 static snake_elem_t prv_snake[SNAKE_MAX_LEN];
@@ -46,12 +46,10 @@ void snake_update(float current_time)
         }
 
         prv_snake_update_head();
-        // printf("snake head %d %d len %d\r\n", prv_snake[SNAKE_HEAD_IDX].x_pos, prv_snake[SNAKE_HEAD_IDX].y_pos, prv_snake_len);
 
         if ((prv_snake[SNAKE_HEAD_IDX].x_pos == prv_snake_food.x_pos) && (prv_snake[SNAKE_HEAD_IDX].y_pos == prv_snake_food.y_pos))
         {
-            prv_snake_food.is_eaten = true;
-            // printf("snake food eaten \r\n");
+            prv_snake_food.food_status = FOOD_EATEN;
         }
 
         prv_snake_movement_update_time = current_time;
@@ -63,26 +61,69 @@ void snake_set_head_movement(movement_t movement)
     prv_snake_head_movement = movement;
 }
 
-void snake_food_init(unsigned int x_food_start_pos, unsigned int y_food_start_pos)
+bool snake_food_init(unsigned int x_food_start_pos, unsigned int y_food_start_pos)
 {
-    prv_snake_food.is_eaten = false;
-    prv_snake_food.x_pos = x_food_start_pos;
-    prv_snake_food.y_pos = y_food_start_pos;
+    prv_snake_food.food_status = FOOD_GENERATE_NEW;
+
+    return snake_food_create_new_food(x_food_start_pos, y_food_start_pos);
 }
 
-void snake_food_update(unsigned int x_food_new_pos, unsigned int y_food_new_pos)
+void snake_food_update(void)
 {
-    if (prv_snake_food.is_eaten)
+
+    switch (prv_snake_food.food_status)
     {
+    case FOOD_NOT_EATEN:
+        break;
+
+    case FOOD_EATEN:
         prv_snake[prv_snake_len].x_pos = prv_snake_food.x_pos;
         prv_snake[prv_snake_len].y_pos = prv_snake_food.y_pos;
-
-        prv_snake_food.x_pos = x_food_new_pos;
-        prv_snake_food.y_pos = y_food_new_pos;
-
         prv_snake_len++;
-        prv_snake_food.is_eaten = false;
+
+        prv_snake_food.food_status = FOOD_GENERATE_NEW;
+        break;
+
+    case FOOD_GENERATE_NEW:
+
+        break;
+    default:
+        break;
     }
+}
+
+bool snake_food_create_new_food(unsigned int x_food_new_pos, unsigned int y_food_new_pos)
+{
+    bool result = false;
+
+    if (prv_snake_food.food_status != FOOD_GENERATE_NEW)
+    {
+        return result;
+    }
+
+    for (int i = 0; i < prv_snake_len; i++)
+    {
+        if (prv_snake[i].x_pos != x_food_new_pos || prv_snake[i].y_pos != y_food_new_pos)
+        {
+            result = true;
+            prv_snake_food.x_pos = x_food_new_pos;
+            prv_snake_food.y_pos = y_food_new_pos;
+            prv_snake_food.food_status = FOOD_NOT_EATEN;
+        }
+        else
+        {
+            result = false;
+            prv_snake_food.food_status = FOOD_GENERATE_NEW;
+            break;
+        }
+    }
+
+    return result;
+}
+
+snake_food_status_t snake_food_get_status(void)
+{
+    return prv_snake_food.food_status;
 }
 
 snake_elem_t *snake_get_snake_coords(void)

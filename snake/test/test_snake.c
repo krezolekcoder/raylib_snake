@@ -2,6 +2,7 @@
 
 #include "snake.h"
 #include "config.h"
+#include <stdbool.h>
 
 void setUp(void)
 {
@@ -60,12 +61,13 @@ void test_snake_food_eating(void)
     /* update of position happens every 0.2s */
     snake_update(current_time + 0.21f);
 
-    snake_food_update(2, 2);
+    snake_food_update();
 
     snake_set_head_movement(MOVEMENT_DOWN);
 
     snake_update(current_time + 0.63f);
-    snake_food_update(2, 2);
+    snake_food_update();
+    snake_food_create_new_food(2, 2);
 
     /* Check if food x coordinate has changed */
 
@@ -85,12 +87,12 @@ void test_snake_len_increased_after_eaten_food(void)
     /* update of position happens every 0.2s */
     snake_update(current_time + 0.21f);
 
-    snake_food_update(2, 2);
+    snake_food_update();
 
     snake_set_head_movement(MOVEMENT_DOWN);
 
     snake_update(current_time + 0.63f);
-    snake_food_update(2, 2);
+    snake_food_update();
 
     /* Check if food x coordinate has changed */
 
@@ -105,10 +107,10 @@ void test_snake_next_brick_coords_after_food_eating(void)
     float current_time = 0.0f;
     snake_set_head_movement(MOVEMENT_RIGHT);
     snake_update(current_time + 0.21f);
-    snake_food_update(2, 2);
+    snake_food_update();
     snake_set_head_movement(MOVEMENT_DOWN);
     snake_update(current_time + 0.42f);
-    snake_food_update(2, 2);
+    snake_food_update();
 
     unsigned int coords[2];
     coords[0] = snake[1].x_pos;
@@ -132,7 +134,7 @@ void test_snake_second_brick_coords_after_updated_movement(void)
     snake_set_head_movement(MOVEMENT_DOWN);
     current_time += 0.21f;
     snake_update(current_time);
-    snake_food_update(5, 5);
+    snake_food_update();
     current_time += 0.21f;
     snake_update(current_time);
     current_time += 0.21f;
@@ -161,13 +163,14 @@ void test_snake_increased_len_after_eating_more_food(void)
     snake_set_head_movement(MOVEMENT_DOWN);
     current_time += 0.21f;
     snake_update(current_time);
-    snake_food_update(2, 2);
+    snake_food_update();
+    snake_food_create_new_food(2, 2);
     current_time += 0.21f;
     snake_update(current_time);
     snake_set_head_movement(MOVEMENT_RIGHT);
     current_time += 0.21f;
     snake_update(current_time);
-    snake_food_update(2, 2);
+    snake_food_update();
 
     TEST_ASSERT_EQUAL_INT(3, snake_get_len());
 }
@@ -183,20 +186,27 @@ void test_snake_tail_coords_with_increased_len(void)
     unsigned int elems_actual[6];
 
     float current_time = 0.0f;
+
     snake_set_head_movement(MOVEMENT_RIGHT);
     current_time += 0.21f;
     snake_update(current_time);
+
     snake_set_head_movement(MOVEMENT_DOWN);
     current_time += 0.21f;
     snake_update(current_time);
-    snake_food_update(2, 2);
+    snake_food_update();
+    snake_food_create_new_food(2, 2);
+
     current_time += 0.21f;
     snake_update(current_time);
+
     snake_set_head_movement(MOVEMENT_RIGHT);
     current_time += 0.21f;
     snake_update(current_time);
-    snake_food_update(5, 5);
+    snake_food_update();
+    snake_food_create_new_food(3, 3);
 
+    // move snake in right direction
     for (int i = 0; i < 5; i++)
     {
         current_time += 0.21f;
@@ -218,4 +228,50 @@ void test_snake_tail_coords_with_increased_len(void)
     elems_actual[5] = snake[2].y_pos;
 
     TEST_ASSERT_EQUAL_INT_ARRAY(elems_expected, elems_actual, 6);
+}
+
+void test_result_if_new_position_of_food_collide_with_snake(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    float current_time = 0.0f;
+    snake_food_init(1, 1);
+
+    bool food_update_result = true;
+
+    snake_set_head_movement(MOVEMENT_RIGHT);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_DOWN);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_food_update();
+    snake_food_create_new_food(2, 2);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_RIGHT);
+    current_time += 0.21f;
+    snake_food_update();
+    food_update_result = snake_food_create_new_food(2, 2);
+
+    TEST_ASSERT_EQUAL(false, food_update_result);
+}
+
+void test_result_if_new_position_dont_collide_with_snake(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    float current_time = 0.0f;
+    snake_food_init(1, 1);
+
+    bool food_update_result = true;
+
+    snake_set_head_movement(MOVEMENT_RIGHT);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_DOWN);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_food_update();
+    food_update_result = snake_food_create_new_food(2, 2);
+
+    TEST_ASSERT_EQUAL(true, food_update_result);
 }
