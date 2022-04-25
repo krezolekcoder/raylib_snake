@@ -275,3 +275,24 @@ void test_result_if_new_position_dont_collide_with_snake(void)
 
     TEST_ASSERT_EQUAL(true, food_update_result);
 }
+
+void test_result_check_if_backwards_snake_head_movement_not_possible(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    float current_time = 0.0f;
+
+    snake_food_init(1, 1);
+
+    snake_set_head_movement(MOVEMENT_RIGHT);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_DOWN);
+    current_time += 0.21f;
+    snake_update(current_time);
+    snake_food_update();
+    snake_food_create_new_food(2, 2);
+
+    bool result = snake_set_head_movement(MOVEMENT_UP);
+
+    TEST_ASSERT_EQUAL(false, result);
+}

@@ -8,6 +8,7 @@
 
 #define SNAKE_HEAD_IDX (0U)
 #define SNAKE_SPEED (1U) // 1 block size
+#define MOVEMENT_CNT (4U)
 
 typedef struct
 {
@@ -19,6 +20,11 @@ typedef struct
 static snake_elem_t prv_snake[SNAKE_MAX_LEN];
 static snake_food_t prv_snake_food;
 static movement_t prv_snake_head_movement = MOVEMENT_RIGHT;
+
+/* Lookup table for prohibited movement f.ex if snake is moving in right direction, the left direction is not possible
+ * LUT indexing according to movement_t enum */
+
+static movement_t prv_snake_movement_not_possible_lookup[MOVEMENT_CNT] = {MOVEMENT_DOWN, MOVEMENT_UP, MOVEMENT_RIGHT, MOVEMENT_LEFT};
 
 static unsigned int prv_snake_len;
 static float prv_snake_movement_update_time;
@@ -56,9 +62,19 @@ void snake_update(float current_time)
     }
 }
 
-void snake_set_head_movement(movement_t movement)
+bool snake_set_head_movement(movement_t movement)
 {
-    prv_snake_head_movement = movement;
+    bool result = true;
+    if (prv_snake_head_movement == prv_snake_movement_not_possible_lookup[movement])
+    {
+        result = false;
+    }
+    else
+    {
+        prv_snake_head_movement = movement;
+    }
+
+    return result;
 }
 
 bool snake_food_init(unsigned int x_food_start_pos, unsigned int y_food_start_pos)
