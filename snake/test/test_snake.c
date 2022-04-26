@@ -296,3 +296,88 @@ void test_result_check_if_backwards_snake_head_movement_not_possible(void)
 
     TEST_ASSERT_EQUAL(false, result);
 }
+
+void test_result_check_collision_with_wall_x_coord_less_than_min(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    float current_time = 0.0f;
+    bool snake_update_result = true;
+
+    // at initial time snake could not go backwards so we need to go down for 1 box and then turn left to induce wrong behaviour
+    snake_set_head_movement(MOVEMENT_DOWN);
+    current_time += 0.21f;
+
+    snake_update_result = snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_LEFT);
+    current_time += 0.21f;
+    snake_update_result = snake_update(current_time);
+
+    TEST_ASSERT_EQUAL(false, snake_update_result);
+}
+
+void test_result_check_collision_with_wall_x_coord_greather_than_max(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    float current_time = 0.0f;
+    bool snake_update_result = true;
+
+    snake_set_head_movement(MOVEMENT_UP);
+    current_time += 0.21f;
+    snake_update_result = snake_update(current_time);
+
+    TEST_ASSERT_EQUAL(false, snake_update_result);
+}
+
+void test_result_check_collision_with_wall_y_coord_less_than_min(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    float current_time = 0.0f;
+    bool snake_update_result = true;
+
+    snake_set_head_movement(MOVEMENT_RIGHT);
+
+    // we need to go right to the end of the blocks area
+    for (int i = 0; i < SCREEN_WIDTH_BLOCK_CNT + 1; i++)
+    {
+        current_time += 0.21f;
+        snake_update_result = snake_update(current_time);
+    }
+
+    TEST_ASSERT_EQUAL(false, snake_update_result);
+}
+
+void test_result_check_collision_with_wall_y_coord_greather_than_max(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    float current_time = 0.0f;
+    bool snake_update_result = true;
+
+    snake_set_head_movement(MOVEMENT_DOWN);
+
+    // we need to go down to the end of the blocks area
+    for (int i = 0; i < SCREEN_HEIGHT_BLOCK_CNT + 1; i++)
+    {
+        current_time += 0.21f;
+        snake_update_result = snake_update(current_time);
+    }
+
+    TEST_ASSERT_EQUAL(false, snake_update_result);
+}
+
+void test_snake_x_coords_after_wall_collision_less_than_min(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    float current_time = 0.0f;
+    bool snake_update_result = true;
+
+    // at initial time snake could not go backwards so we need to go down for 1 box and then turn left to induce wrong behaviour
+    snake_set_head_movement(MOVEMENT_DOWN);
+    current_time += 0.21f;
+
+    snake_update_result = snake_update(current_time);
+    snake_set_head_movement(MOVEMENT_LEFT);
+    current_time += 0.21f;
+    snake_update_result = snake_update(current_time);
+
+    TEST_ASSERT_EQUAL(0, snake[0].x_pos);
+}

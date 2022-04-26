@@ -27,7 +27,7 @@ typedef struct
 
 void snake_init(unsigned int x_start_head_pos, unsigned int y_start_head_pos);
 bool snake_set_head_movement(const movement_t movement);
-void snake_update(const float current_time);
+bool snake_update(const float current_time);
 
 unsigned int snake_get_len(void);
 snake_elem_t *snake_get_snake_coords(void);

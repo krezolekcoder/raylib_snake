@@ -29,7 +29,7 @@ static movement_t prv_snake_movement_not_possible_lookup[MOVEMENT_CNT] = {MOVEME
 static unsigned int prv_snake_len;
 static float prv_snake_movement_update_time;
 
-static void prv_snake_update_head(void);
+static bool prv_snake_update_head(void);
 
 void snake_init(unsigned int x_start_head_pos, unsigned int y_start_head_pos)
 {
@@ -40,8 +40,10 @@ void snake_init(unsigned int x_start_head_pos, unsigned int y_start_head_pos)
     prv_snake_movement_update_time = 0.0f;
 }
 
-void snake_update(float current_time)
+bool snake_update(float current_time)
 {
+    bool result = true;
+
     if (current_time - prv_snake_movement_update_time >= SNAKE_UPDATE_TIMEOUT_SEC)
     {
         for (int i = prv_snake_len - 1; i >= 1; i--)
@@ -51,7 +53,7 @@ void snake_update(float current_time)
             prv_snake[i].y_pos = prv_snake[i - 1].y_pos;
         }
 
-        prv_snake_update_head();
+        result = prv_snake_update_head();
 
         if ((prv_snake[SNAKE_HEAD_IDX].x_pos == prv_snake_food.x_pos) && (prv_snake[SNAKE_HEAD_IDX].y_pos == prv_snake_food.y_pos))
         {
@@ -60,6 +62,8 @@ void snake_update(float current_time)
 
         prv_snake_movement_update_time = current_time;
     }
+
+    return result;
 }
 
 bool snake_set_head_movement(movement_t movement)
@@ -162,24 +166,43 @@ unsigned int snake_get_len(void)
     return prv_snake_len;
 }
 
-static void prv_snake_update_head(void)
+static bool prv_snake_update_head(void)
 {
+    bool result = true;
+
+    int snake_x_pos = prv_snake[SNAKE_HEAD_IDX].x_pos;
+    int snake_y_pos = prv_snake[SNAKE_HEAD_IDX].y_pos;
+
     switch (prv_snake_head_movement)
     {
     case MOVEMENT_LEFT:
-        prv_snake[SNAKE_HEAD_IDX].x_pos -= SNAKE_SPEED;
+        snake_x_pos -= SNAKE_SPEED;
         break;
 
     case MOVEMENT_RIGHT:
-        prv_snake[SNAKE_HEAD_IDX].x_pos += SNAKE_SPEED;
+        snake_x_pos += SNAKE_SPEED;
         break;
 
     case MOVEMENT_UP:
-        prv_snake[SNAKE_HEAD_IDX].y_pos -= SNAKE_SPEED;
+        snake_y_pos -= SNAKE_SPEED;
         break;
 
     case MOVEMENT_DOWN:
-        prv_snake[SNAKE_HEAD_IDX].y_pos += SNAKE_SPEED;
+        snake_y_pos += SNAKE_SPEED;
+        break;
+    default:
         break;
     }
+
+    if (snake_x_pos < 0 || snake_y_pos < 0 || snake_x_pos > SCREEN_WIDTH_BLOCK_CNT || snake_y_pos > SCREEN_HEIGHT_BLOCK_CNT)
+    {
+        result = false;
+    }
+    else
+    {
+        prv_snake[SNAKE_HEAD_IDX].x_pos = snake_x_pos;
+        prv_snake[SNAKE_HEAD_IDX].y_pos = snake_y_pos;
+    }
+
+    return result;
 }
