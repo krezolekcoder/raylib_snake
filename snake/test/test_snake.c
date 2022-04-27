@@ -4,6 +4,8 @@
 #include "config.h"
 #include <stdbool.h>
 
+#define ABS(x) ((x > 0) ? x : -x)
+
 void setUp(void)
 {
     snake_init(0, 0);
@@ -14,39 +16,64 @@ void tearDown(void)
 {
 }
 
-void test_snake_moving_simple(void)
+/**
+ * @brief Helper function for moving snake to defined place
+ *
+ * @param x_pos_start
+ * @param y_pos_start
+ * @param x_pos_dst
+ * @param y_pos_dst
+ */
+static void prv_move_snake_to_arbitrary_place(unsigned int x_pos_start, unsigned int y_pos_start, unsigned int x_pos_dst, unsigned int y_pos_dst)
 {
-    snake_init(5, 5);
-
-    snake_set_head_movement(MOVEMENT_RIGHT);
-    snake_elem_t *snake = snake_get_snake_coords();
-
+    unsigned int x_distance = x_pos_dst - x_pos_start;
+    unsigned int y_distance = y_pos_dst - y_pos_start;
     float current_time = 0.0f;
 
-    snake_update(current_time);
+    movement_t snake_movement;
 
-    snake_update(current_time + 0.21f);
+    snake_movement = x_distance > 0 ? MOVEMENT_RIGHT : MOVEMENT_LEFT;
 
-    TEST_ASSERT_EQUAL_INT(6, snake[0].x_pos);
-}
-
-void test_snake_moving_complex(void)
-{
-    snake_elem_t *snake = snake_get_snake_coords();
-
-    snake_set_head_movement(MOVEMENT_DOWN);
-
-    float current_time = 0.0f;
-
-    snake_update(current_time);
-
-    /* update 10 times - about 2 seconds passed virtually */
-    for (int i = 0; i < 10; i++)
+    if (x_distance != 0)
     {
-        snake_update(current_time + i * (SNAKE_UPDATE_TIMEOUT_SEC + 0.01f));
+        snake_set_head_movement(snake_movement);
+
+        for (int i = 0; i < ABS(x_distance); i++)
+        {
+            current_time += 0.21f;
+            snake_update(current_time);
+        }
     }
 
-    TEST_ASSERT_EQUAL_INT(9, snake[0].y_pos);
+    snake_movement = y_distance > 0 ? MOVEMENT_DOWN : MOVEMENT_UP;
+
+    if (y_distance != 0)
+    {
+        printf("x dist %d y dist%d movement %d", x_distance, y_distance, snake_movement);
+        snake_set_head_movement(snake_movement);
+
+        for (int i = 0; i < ABS(y_distance); i++)
+        {
+            current_time += 0.21f;
+            snake_update(current_time);
+        }
+    }
+}
+
+void test_snake_moving(void)
+{
+    snake_init(0, 0);
+
+    snake_elem_t *snake = snake_get_snake_coords();
+
+    prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 6, 6);
+
+    unsigned int expected[2] = {6, 6};
+    unsigned int actual[2];
+    actual[0] = snake[0].x_pos;
+    actual[1] = snake[0].y_pos;
+
+    TEST_ASSERT_EQUAL_INT_ARRAY(expected, actual, 2);
 }
 
 void test_snake_food_eating(void)
@@ -55,17 +82,8 @@ void test_snake_food_eating(void)
     snake_elem_t *snake = snake_get_snake_coords();
     /* initial snake position is x 0 y 0 food is 1 1 so we must go 1 to the right 1 down  virtually */
 
-    float current_time = 0.0f;
-    snake_set_head_movement(MOVEMENT_RIGHT);
+    prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 1);
 
-    /* update of position happens every 0.2s */
-    snake_update(current_time + 0.21f);
-
-    snake_food_update();
-
-    snake_set_head_movement(MOVEMENT_DOWN);
-
-    snake_update(current_time + 0.63f);
     snake_food_update();
     snake_food_create_new_food(2, 2);
 
@@ -81,17 +99,8 @@ void test_snake_len_increased_after_eaten_food(void)
     snake_elem_t *snake = snake_get_snake_coords();
     /* initial snake position is x 0 y 0 food is 1 1 so we must go 1 to the right 1 down  virtually */
 
-    float current_time = 0.0f;
-    snake_set_head_movement(MOVEMENT_RIGHT);
+    prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 1);
 
-    /* update of position happens every 0.2s */
-    snake_update(current_time + 0.21f);
-
-    snake_food_update();
-
-    snake_set_head_movement(MOVEMENT_DOWN);
-
-    snake_update(current_time + 0.63f);
     snake_food_update();
 
     /* Check if food x coordinate has changed */
@@ -104,12 +113,7 @@ void test_snake_next_brick_coords_after_food_eating(void)
     snake_food_init(1, 1);
     snake_elem_t *snake = snake_get_snake_coords();
 
-    float current_time = 0.0f;
-    snake_set_head_movement(MOVEMENT_RIGHT);
-    snake_update(current_time + 0.21f);
-    snake_food_update();
-    snake_set_head_movement(MOVEMENT_DOWN);
-    snake_update(current_time + 0.42f);
+    prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 1);
     snake_food_update();
 
     unsigned int coords[2];
@@ -127,20 +131,23 @@ void test_snake_second_brick_coords_after_updated_movement(void)
     snake_elem_t *snake = snake_get_snake_coords();
 
     /* Move snake to food position and eat it */
-    float current_time = 0.0f;
-    snake_set_head_movement(MOVEMENT_RIGHT);
-    current_time += 0.21f;
-    snake_update(current_time);
-    snake_set_head_movement(MOVEMENT_DOWN);
-    current_time += 0.21f;
-    snake_update(current_time);
+    // float current_time = 0.0f;
+    // snake_set_head_movement(MOVEMENT_RIGHT);
+    // current_time += 0.21f;
+    // snake_update(current_time);
+    // snake_set_head_movement(MOVEMENT_DOWN);
+    // current_time += 0.21f;
+    // snake_update(current_time);
+    // snake_food_update();
+    // current_time += 0.21f;
+    // snake_update(current_time);
+    // current_time += 0.21f;
+    // snake_update(current_time);
+    // current_time += 0.21f;
+    // snake_update(current_time);
+    prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 1);
     snake_food_update();
-    current_time += 0.21f;
-    snake_update(current_time);
-    current_time += 0.21f;
-    snake_update(current_time);
-    current_time += 0.21f;
-    snake_update(current_time);
+    prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 3);
 
     unsigned int coords_actual[2];
     unsigned int coords_expected[2] = {1, 3};
