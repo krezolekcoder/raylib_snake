@@ -249,6 +249,45 @@ void test_snake_x_coords_after_wall_collision_less_than_min(void)
     TEST_ASSERT_EQUAL(0, snake[0].x_pos);
 }
 
+/** Increase the snake len to f.ex 3, hit the wall and check if snake coords are correct that is non of snake bricks should exceed the wall and dissapear */
+void test_snake_x_coords_still_after_wall_colision_left(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    snake_food_init(1, 1);
+
+    unsigned int elems_expected[6] = {0, 2, 1, 2, 2, 2};
+    unsigned int elems_actual[6];
+
+    float current_time;
+    /** increase snake len to 3 */
+    for (int i = 0; i < 2; i++)
+    {
+        prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, i + 1, i + 1);
+        snake_food_update();
+        snake_food_create_new_food(i + 2, i + 2);
+    }
+
+    /** move snake to edge of the left wall */
+    // prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 5);
+
+    snake_set_head_movement(MOVEMENT_LEFT);
+    current_time = snake_get_time();
+    for (int i = 0; i < 7; i++)
+    {
+        snake_update(current_time + i * 0.21f);
+    }
+
+    /** Let snake do some movement and check if coords of snake do not exceeded wall */
+
+    elems_actual[0] = snake[0].x_pos;
+    elems_actual[1] = snake[0].y_pos;
+    elems_actual[2] = snake[1].x_pos;
+    elems_actual[3] = snake[1].y_pos;
+    elems_actual[4] = snake[2].x_pos;
+    elems_actual[5] = snake[2].y_pos;
+
+    TEST_ASSERT_EQUAL_INT_ARRAY(elems_expected, elems_actual, 6);
+}
 /************************************ HELPER FUNCTIONS IMPLEMENTATION ************************************************************/
 
 static bool prv_move_snake_to_arbitrary_place(unsigned int x_pos_start, unsigned int y_pos_start, unsigned int x_pos_dst, unsigned int y_pos_dst)
