@@ -40,4 +40,6 @@ snake_food_status_t snake_food_get_status(void);
 unsigned int snake_food_get_x_pos(void);
 unsigned int snake_food_get_y_pos(void);
 
+float snake_get_time(void);
+
 #endif // SNAKE_H

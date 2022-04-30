@@ -6,10 +6,12 @@
 
 #define ABS(x) ((x > 0) ? x : -x)
 
+#define SNAKE_UPDATE_TIMEOUT (0.21f)
+
 void setUp(void)
 {
     snake_init(0, 0);
-    snake_food_init(0, 0);
+    snake_food_init(1, 1);
 }
 
 void tearDown(void)
@@ -45,8 +47,6 @@ void test_snake_moving(void)
 /* test generating new food and increased len of snake after eating */
 void test_snake_len_increased_after_eaten_food(void)
 {
-    snake_food_init(1, 1);
-
     snake_elem_t *snake = snake_get_snake_coords();
     /* initial snake position is x 0 y 0 food is 1 1 so we must go 1 to the right 1 down  virtually */
 
@@ -64,7 +64,6 @@ void test_snake_len_increased_after_eaten_food(void)
 
 void test_snake_next_brick_coords_after_food_eating(void)
 {
-    snake_food_init(1, 1);
     snake_elem_t *snake = snake_get_snake_coords();
 
     prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 1);
@@ -81,7 +80,6 @@ void test_snake_next_brick_coords_after_food_eating(void)
 
 void test_snake_second_brick_coords_after_updated_movement(void)
 {
-    snake_food_init(1, 1);
     snake_elem_t *snake = snake_get_snake_coords();
 
     /* Move snake to food position and eat it */
@@ -104,8 +102,6 @@ void test_snake_tail_coords_with_increased_len(void)
 {
     unsigned int elems_expected[6] = {7, 2, 6, 2, 5, 2};
     unsigned int elems_actual[6];
-
-    snake_food_init(1, 1);
     snake_elem_t *snake = snake_get_snake_coords();
 
     for (int i = 0; i < 2; i++)
@@ -131,8 +127,6 @@ void test_result_if_new_position_of_food_collide_with_snake(void)
 {
     snake_elem_t *snake = snake_get_snake_coords();
     float current_time = 0.0f;
-    snake_food_init(1, 1);
-
     for (int i = 0; i < 2; i++)
     {
         prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, i + 1, i + 1);
@@ -146,8 +140,6 @@ void test_result_if_new_position_dont_collide_with_snake(void)
 {
     snake_elem_t *snake = snake_get_snake_coords();
     float current_time = 0.0f;
-    snake_food_init(1, 1);
-
     prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 1);
     snake_food_update();
 
@@ -157,8 +149,6 @@ void test_result_if_new_position_dont_collide_with_snake(void)
 void test_result_check_if_backwards_snake_head_movement_not_possible(void)
 {
     snake_elem_t *snake = snake_get_snake_coords();
-
-    snake_food_init(1, 1);
     prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 1);
 
     TEST_ASSERT_EQUAL(false, snake_set_head_movement(MOVEMENT_UP));
@@ -172,11 +162,11 @@ void test_result_check_collision_with_wall_x_coord_less_than_min(void)
 
     // at initial time snake could not go backwards so we need to go down for 1 box and then turn left to induce wrong behaviour
     snake_set_head_movement(MOVEMENT_DOWN);
-    current_time += 0.21f;
+    current_time += SNAKE_UPDATE_TIMEOUT;
 
     snake_update_result = snake_update(current_time);
     snake_set_head_movement(MOVEMENT_LEFT);
-    current_time += 0.21f;
+    current_time += SNAKE_UPDATE_TIMEOUT;
     snake_update_result = snake_update(current_time);
 
     TEST_ASSERT_EQUAL(false, snake_update_result);
@@ -189,7 +179,7 @@ void test_result_check_collision_with_wall_x_coord_greather_than_max(void)
     bool snake_update_result = true;
 
     snake_set_head_movement(MOVEMENT_UP);
-    current_time += 0.21f;
+    current_time += SNAKE_UPDATE_TIMEOUT;
     snake_update_result = snake_update(current_time);
 
     TEST_ASSERT_EQUAL(false, snake_update_result);
@@ -206,7 +196,7 @@ void test_result_check_collision_with_wall_y_coord_less_than_min(void)
     // we need to go right to the end of the blocks area
     for (int i = 0; i < SCREEN_WIDTH_BLOCK_CNT + 1; i++)
     {
-        current_time += 0.21f;
+        current_time += SNAKE_UPDATE_TIMEOUT;
         snake_update_result = snake_update(current_time);
     }
 
@@ -224,7 +214,7 @@ void test_result_check_collision_with_wall_y_coord_greather_than_max(void)
     // we need to go down to the end of the blocks area
     for (int i = 0; i < SCREEN_HEIGHT_BLOCK_CNT + 1; i++)
     {
-        current_time += 0.21f;
+        current_time += SNAKE_UPDATE_TIMEOUT;
         snake_update_result = snake_update(current_time);
     }
 
@@ -239,11 +229,11 @@ void test_snake_x_coords_after_wall_collision_less_than_min(void)
 
     // at initial time snake could not go backwards so we need to go down for 1 box and then turn left to induce wrong behaviour
     snake_set_head_movement(MOVEMENT_DOWN);
-    current_time += 0.21f;
+    current_time += SNAKE_UPDATE_TIMEOUT;
 
     snake_update_result = snake_update(current_time);
     snake_set_head_movement(MOVEMENT_LEFT);
-    current_time += 0.21f;
+    current_time += SNAKE_UPDATE_TIMEOUT;
     snake_update_result = snake_update(current_time);
 
     TEST_ASSERT_EQUAL(0, snake[0].x_pos);
@@ -253,8 +243,6 @@ void test_snake_x_coords_after_wall_collision_less_than_min(void)
 void test_snake_x_coords_still_after_wall_colision_left(void)
 {
     snake_elem_t *snake = snake_get_snake_coords();
-    snake_food_init(1, 1);
-
     unsigned int elems_expected[6] = {0, 2, 1, 2, 2, 2};
     unsigned int elems_actual[6];
 
@@ -268,16 +256,145 @@ void test_snake_x_coords_still_after_wall_colision_left(void)
     }
 
     /** move snake to edge of the left wall */
-    // prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 5);
-
-    snake_set_head_movement(MOVEMENT_LEFT);
+    if (!snake_set_head_movement(MOVEMENT_LEFT))
+    {
+        printf("wrong head movement left!\r\n");
+    }
     current_time = snake_get_time();
     for (int i = 0; i < 7; i++)
     {
-        snake_update(current_time + i * 0.21f);
+        snake_update(current_time + i * SNAKE_UPDATE_TIMEOUT);
     }
 
     /** Let snake do some movement and check if coords of snake do not exceeded wall */
+
+    elems_actual[0] = snake[0].x_pos;
+    elems_actual[1] = snake[0].y_pos;
+    elems_actual[2] = snake[1].x_pos;
+    elems_actual[3] = snake[1].y_pos;
+    elems_actual[4] = snake[2].x_pos;
+    elems_actual[5] = snake[2].y_pos;
+
+    TEST_ASSERT_EQUAL_INT_ARRAY(elems_expected, elems_actual, 6);
+}
+
+void test_snake_x_coords_still_after_wall_colision_right(void)
+{
+    unsigned int elems_expected[6] = {25, 2, 24, 2, 23, 2};
+    unsigned int elems_actual[6];
+
+    float current_time;
+
+    snake_elem_t *snake = snake_get_snake_coords();
+    /** increase snake len to 3 */
+    for (int i = 0; i < 2; i++)
+    {
+        prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, i + 1, i + 1);
+        snake_food_update();
+        snake_food_create_new_food(i + 2, i + 2);
+    }
+
+    /** move snake to right edge of the screen */
+
+    if (!snake_set_head_movement(MOVEMENT_RIGHT))
+    {
+        printf("Wrong head movement right \r\n");
+    }
+    current_time = snake_get_time();
+
+    /** Let snake do some movement */
+    for (int i = 0; i < SCREEN_WIDTH_BLOCK_CNT; i++)
+    {
+        snake_update(current_time + i * SNAKE_UPDATE_TIMEOUT);
+    }
+
+    /** check if coords of snake do not exceeded wall */
+
+    elems_actual[0] = snake[0].x_pos;
+    elems_actual[1] = snake[0].y_pos;
+    elems_actual[2] = snake[1].x_pos;
+    elems_actual[3] = snake[1].y_pos;
+    elems_actual[4] = snake[2].x_pos;
+    elems_actual[5] = snake[2].y_pos;
+
+    TEST_ASSERT_EQUAL_INT_ARRAY(elems_expected, elems_actual, 6);
+}
+
+void test_snake_y_coords_still_after_wall_collision_up(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    unsigned int elems_expected[6] = {2, 0, 2, 1, 2, 2};
+    unsigned int elems_actual[6];
+
+    float current_time;
+    /** increase snake len to 3 */
+    for (int i = 0; i < 2; i++)
+    {
+        prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, i + 1, i + 1);
+        snake_food_update();
+        snake_food_create_new_food(i + 2, i + 2);
+    }
+
+    /** move snake to up edge of the screen  */
+
+    if (!snake_set_head_movement(MOVEMENT_UP))
+    {
+        // printf("wrong head movement up \r\n");
+        /** we have to turn snake around  */
+        snake_set_head_movement(MOVEMENT_RIGHT);
+        current_time = snake_get_time();
+        snake_update(current_time + SNAKE_UPDATE_TIMEOUT);
+        snake_set_head_movement(MOVEMENT_UP);
+    }
+
+    /** Let snake do some movement */
+    for (int i = 0; i < 7; i++)
+    {
+        snake_update(current_time + i * SNAKE_UPDATE_TIMEOUT);
+    }
+
+    /** check if coords of snake do not exceeded wall */
+
+    elems_actual[0] = snake[0].x_pos;
+    elems_actual[1] = snake[0].y_pos;
+    elems_actual[2] = snake[1].x_pos;
+    elems_actual[3] = snake[1].y_pos;
+    elems_actual[4] = snake[2].x_pos;
+    elems_actual[5] = snake[2].y_pos;
+
+    TEST_ASSERT_EQUAL_INT_ARRAY(elems_expected, elems_actual, 6);
+}
+
+void test_snake_y_coords_still_after_wall_collision_down(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    unsigned int elems_expected[6] = {2, 15, 2, 14, 2, 13};
+    unsigned int elems_actual[6];
+
+    float current_time;
+    /** increase snake len to 3 */
+    for (int i = 0; i < 2; i++)
+    {
+        prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, i + 1, i + 1);
+        snake_food_update();
+        snake_food_create_new_food(i + 2, i + 2);
+    }
+
+    /** move snake to the down edge of the screen */
+
+    if (!snake_set_head_movement(MOVEMENT_DOWN))
+    {
+        printf("wrong head movement down !\r\n");
+    }
+    current_time = snake_get_time();
+
+    /** Let snake do some movement  */
+    for (int i = 0; i < SCREEN_HEIGHT_BLOCK_CNT; i++)
+    {
+        snake_update(current_time + i * SNAKE_UPDATE_TIMEOUT);
+    }
+
+    /** check if coords of snake do not exceeded wall */
 
     elems_actual[0] = snake[0].x_pos;
     elems_actual[1] = snake[0].y_pos;
@@ -319,7 +436,7 @@ static bool prv_move_snake_to_arbitrary_place(unsigned int x_pos_start, unsigned
 
         for (int i = 0; i < ABS(x_distance); i++)
         {
-            current_time += 0.21f;
+            current_time += SNAKE_UPDATE_TIMEOUT;
             snake_update(current_time);
         }
     }
@@ -335,7 +452,7 @@ static bool prv_move_snake_to_arbitrary_place(unsigned int x_pos_start, unsigned
 
         for (int i = 0; i < ABS(y_distance); i++)
         {
-            current_time += 0.21f;
+            current_time += SNAKE_UPDATE_TIMEOUT;
             snake_update(current_time);
         }
     }

@@ -48,7 +48,6 @@ bool snake_update(float current_time)
     {
         for (int i = prv_snake_len - 1; i >= 1; i--)
         {
-
             prv_snake[i].x_pos = prv_snake[i - 1].x_pos;
             prv_snake[i].y_pos = prv_snake[i - 1].y_pos;
         }
@@ -205,4 +204,9 @@ static bool prv_snake_update_head(void)
     }
 
     return result;
+}
+
+float snake_get_time(void)
+{
+    return prv_snake_movement_update_time;
 }
