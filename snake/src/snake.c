@@ -46,17 +46,31 @@ bool snake_update(float current_time)
 
     if (current_time - prv_snake_movement_update_time >= SNAKE_UPDATE_TIMEOUT_SEC)
     {
-        for (int i = prv_snake_len - 1; i >= 1; i--)
-        {
-            prv_snake[i].x_pos = prv_snake[i - 1].x_pos;
-            prv_snake[i].y_pos = prv_snake[i - 1].y_pos;
-        }
+        /* update coordinates of all snake */
+
+        // for (int i = prv_snake_len - 1; i >= 1; i--)
+        // {
+        //     prv_snake[i].x_pos = prv_snake[i - 1].x_pos;
+        //     prv_snake[i].y_pos = prv_snake[i - 1].y_pos;
+        // }
+
+        // /* check if head update is possible, if not - snake should stand still and not update itself */
+        // result = prv_snake_update_head();
 
         result = prv_snake_update_head();
-
-        if ((prv_snake[SNAKE_HEAD_IDX].x_pos == prv_snake_food.x_pos) && (prv_snake[SNAKE_HEAD_IDX].y_pos == prv_snake_food.y_pos))
+        if (result)
         {
-            prv_snake_food.food_status = FOOD_EATEN;
+            for (int i = prv_snake_len - 1; i >= 1; i--)
+            {
+                prv_snake[i].x_pos = prv_snake[i - 1].x_pos;
+                prv_snake[i].y_pos = prv_snake[i - 1].y_pos;
+            }
+
+            /* check if food has been eaten, if so change food status */
+            if ((prv_snake[SNAKE_HEAD_IDX].x_pos == prv_snake_food.x_pos) && (prv_snake[SNAKE_HEAD_IDX].y_pos == prv_snake_food.y_pos))
+            {
+                prv_snake_food.food_status = FOOD_EATEN;
+            }
         }
 
         prv_snake_movement_update_time = current_time;
@@ -193,7 +207,7 @@ static bool prv_snake_update_head(void)
         break;
     }
 
-    if (snake_x_pos < 0 || snake_y_pos < 0 || snake_x_pos > SCREEN_WIDTH_BLOCK_CNT || snake_y_pos > SCREEN_HEIGHT_BLOCK_CNT)
+    if (snake_x_pos < 0 || snake_y_pos < 0 || snake_x_pos >= SCREEN_WIDTH_BLOCK_CNT || snake_y_pos >= SCREEN_HEIGHT_BLOCK_CNT)
     {
         result = false;
     }

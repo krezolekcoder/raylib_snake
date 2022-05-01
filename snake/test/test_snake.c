@@ -339,7 +339,6 @@ void test_snake_y_coords_still_after_wall_collision_up(void)
 
     if (!snake_set_head_movement(MOVEMENT_UP))
     {
-        // printf("wrong head movement up \r\n");
         /** we have to turn snake around  */
         snake_set_head_movement(MOVEMENT_RIGHT);
         current_time = snake_get_time();
@@ -402,6 +401,12 @@ void test_snake_y_coords_still_after_wall_collision_down(void)
     elems_actual[3] = snake[1].y_pos;
     elems_actual[4] = snake[2].x_pos;
     elems_actual[5] = snake[2].y_pos;
+
+    printf("coords : ");
+    for (int i = 0; i < 6; i++)
+    {
+        printf("%d ", elems_actual[i]);
+    }
 
     TEST_ASSERT_EQUAL_INT_ARRAY(elems_expected, elems_actual, 6);
 }
