@@ -12,8 +12,8 @@
 
 typedef struct
 {
-    int x_pos;
-    int y_pos;
+    uint32_t x_pos;
+    uint32_t y_pos;
     snake_food_status_t food_status;
 } snake_food_t;
 
@@ -29,6 +29,8 @@ static movement_t prv_snake_movement_not_possible_lookup[MOVEMENT_CNT] = {MOVEME
 static uint32_t prv_snake_len;
 static float prv_snake_movement_update_time;
 
+/************************************** PRIVATE INTERFACE DECLARATION ******************************************************/
+static void prv_snake_peek_new_head_coords(uint32_t *x_pos, uint32_t *y_pos, uint32_t *new_x_pos, uint32_t *new_y_pos);
 static bool prv_check_if_snake_head_update_possible(void);
 static void prv_snake_update_head(void);
 
@@ -53,7 +55,7 @@ bool snake_update(float current_time)
 
         if (result)
         {
-            for (int i = prv_snake_len - 1; i >= 1; i--)
+            for (uint32_t i = prv_snake_len - 1; i >= 1; i--)
             {
                 prv_snake[i].x_pos = prv_snake[i - 1].x_pos;
                 prv_snake[i].y_pos = prv_snake[i - 1].y_pos;
@@ -129,7 +131,7 @@ bool snake_food_create_new_food(uint32_t x_food_new_pos, uint32_t y_food_new_pos
         return result;
     }
 
-    for (int i = 0; i < prv_snake_len; i++)
+    for (uint32_t i = 0; i < prv_snake_len; i++)
     {
         if (prv_snake[i].x_pos != x_food_new_pos || prv_snake[i].y_pos != y_food_new_pos)
         {
@@ -177,30 +179,10 @@ uint32_t snake_get_len(void)
 static bool prv_check_if_snake_head_update_possible(void)
 {
 
-    uint32_t x_pos = prv_snake[SNAKE_HEAD_IDX].x_pos;
-    uint32_t y_pos = prv_snake[SNAKE_HEAD_IDX].y_pos;
+    uint32_t x_pos = 0;
+    uint32_t y_pos = 0;
 
-    // TODO - code duplication, maybe implement some function which returns updated coords of snake
-    switch (prv_snake_head_movement)
-    {
-    case MOVEMENT_LEFT:
-        x_pos -= SNAKE_SPEED;
-        break;
-
-    case MOVEMENT_RIGHT:
-        x_pos += SNAKE_SPEED;
-        break;
-
-    case MOVEMENT_UP:
-        y_pos -= SNAKE_SPEED;
-        break;
-
-    case MOVEMENT_DOWN:
-        y_pos += SNAKE_SPEED;
-        break;
-    default:
-        break;
-    }
+    prv_snake_peek_new_head_coords(&prv_snake[SNAKE_HEAD_IDX].x_pos, &prv_snake[SNAKE_HEAD_IDX].y_pos, &x_pos, &y_pos);
 
     if (x_pos < 0 || y_pos < 0 || x_pos >= SCREEN_WIDTH_BLOCK_CNT || y_pos >= SCREEN_HEIGHT_BLOCK_CNT)
     {
@@ -211,26 +193,43 @@ static bool prv_check_if_snake_head_update_possible(void)
 }
 static void prv_snake_update_head(void)
 {
+    uint32_t new_x_pos = 0;
+    uint32_t new_y_pos = 0;
+
+    prv_snake_peek_new_head_coords(&prv_snake[SNAKE_HEAD_IDX].x_pos, &prv_snake[SNAKE_HEAD_IDX].y_pos, &new_x_pos, &new_y_pos);
+
+    prv_snake[SNAKE_HEAD_IDX].x_pos = new_x_pos;
+    prv_snake[SNAKE_HEAD_IDX].y_pos = new_y_pos;
+}
+
+static void prv_snake_peek_new_head_coords(uint32_t *x_pos, uint32_t *y_pos, uint32_t *new_x_pos, uint32_t *new_y_pos)
+{
+    uint32_t x_pos_loc = *x_pos;
+    uint32_t y_pos_loc = *y_pos;
+
     switch (prv_snake_head_movement)
     {
     case MOVEMENT_LEFT:
-        prv_snake[SNAKE_HEAD_IDX].x_pos -= SNAKE_SPEED;
+        x_pos_loc -= SNAKE_SPEED;
         break;
 
     case MOVEMENT_RIGHT:
-        prv_snake[SNAKE_HEAD_IDX].x_pos += SNAKE_SPEED;
+        x_pos_loc += SNAKE_SPEED;
         break;
 
     case MOVEMENT_UP:
-        prv_snake[SNAKE_HEAD_IDX].y_pos -= SNAKE_SPEED;
+        y_pos_loc -= SNAKE_SPEED;
         break;
 
     case MOVEMENT_DOWN:
-        prv_snake[SNAKE_HEAD_IDX].y_pos += SNAKE_SPEED;
+        y_pos_loc += SNAKE_SPEED;
         break;
     default:
         break;
     }
+
+    *new_x_pos = x_pos_loc;
+    *new_y_pos = y_pos_loc;
 }
 
 float snake_get_time(void)

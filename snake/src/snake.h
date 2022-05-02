@@ -21,8 +21,8 @@ typedef enum
 
 typedef struct
 {
-    int x_pos;
-    int y_pos;
+    uint32_t x_pos;
+    uint32_t y_pos;
     movement_t movement_dir;
 } snake_elem_t;
 

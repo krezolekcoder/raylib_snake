@@ -402,12 +402,6 @@ void test_snake_y_coords_still_after_wall_collision_down(void)
     elems_actual[4] = snake[2].x_pos;
     elems_actual[5] = snake[2].y_pos;
 
-    printf("coords : ");
-    for (int i = 0; i < 6; i++)
-    {
-        printf("%d ", elems_actual[i]);
-    }
-
     TEST_ASSERT_EQUAL_INT_ARRAY(elems_expected, elems_actual, 6);
 }
 /************************************ HELPER FUNCTIONS IMPLEMENTATION ************************************************************/

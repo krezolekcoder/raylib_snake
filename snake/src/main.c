@@ -141,7 +141,8 @@ static void prv_snake_draw(void)
 {
     snake_elem_t *snake_elem = snake_get_snake_coords();
 
-    for (int i = 0; i < snake_get_len(); i++)
+    DrawRectangle(snake_elem[0].x_pos * BLOCK_SIZE, snake_elem[0].y_pos * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, MAROON);
+    for (int i = 1; i < snake_get_len(); i++)
     {
         DrawRectangle(snake_elem[i].x_pos * BLOCK_SIZE, snake_elem[i].y_pos * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, PINK);
     }
