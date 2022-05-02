@@ -2,6 +2,7 @@
 #define SNAKE_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef enum
 {
@@ -25,21 +26,21 @@ typedef struct
     movement_t movement_dir;
 } snake_elem_t;
 
-void snake_init(unsigned int x_start_head_pos, unsigned int y_start_head_pos);
+/****************** SNAKE INTERFACE *************************************/
+
+void snake_init(uint32_t x_start_head_pos, uint32_t y_start_head_pos);
 bool snake_set_head_movement(const movement_t movement);
 bool snake_update(const float current_time);
-
-unsigned int snake_get_len(void);
+uint32_t snake_get_len(void);
 snake_elem_t *snake_get_snake_coords(void);
-
-bool snake_food_init(unsigned int x_food_start_pos, unsigned int y_food_start_pos);
-
-void snake_food_update(void);
-bool snake_food_create_new_food(unsigned int x_food_new_pos, unsigned int y_food_new_pos);
-snake_food_status_t snake_food_get_status(void);
-unsigned int snake_food_get_x_pos(void);
-unsigned int snake_food_get_y_pos(void);
-
 float snake_get_time(void);
+
+/******************* SNAKE FOOD INTERFACE *******************************/
+bool snake_food_init(uint32_t x_food_start_pos, uint32_t y_food_start_pos);
+void snake_food_update(void);
+bool snake_food_create_new_food(uint32_t x_food_new_pos, uint32_t y_food_new_pos);
+snake_food_status_t snake_food_get_status(void);
+uint32_t snake_food_get_x_pos(void);
+uint32_t snake_food_get_y_pos(void);
 
 #endif // SNAKE_H

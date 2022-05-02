@@ -90,8 +90,8 @@ int main(void)
                 bool result = false;
                 do
                 {
-                    unsigned int x_new_food_pos = rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
-                    unsigned int y_new_food_pos = rand() % (SCREEN_HEIGHT_BLOCK_CNT - 1);
+                    uint32_t x_new_food_pos = rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
+                    uint32_t y_new_food_pos = rand() % (SCREEN_HEIGHT_BLOCK_CNT - 1);
 
                     result = snake_food_create_new_food(x_new_food_pos, y_new_food_pos);
                 } while (result == false);

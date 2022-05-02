@@ -26,12 +26,12 @@ void tearDown(void)
  * @param x_pos_dst
  * @param y_pos_dst
  */
-static bool prv_move_snake_to_arbitrary_place(unsigned int x_pos_start, unsigned int y_pos_start, unsigned int x_pos_dst, unsigned int y_pos_dst);
+static bool prv_move_snake_to_arbitrary_place(uint32_t x_pos_start, uint32_t y_pos_start, uint32_t x_pos_dst, uint32_t y_pos_dst);
 
 void test_snake_moving(void)
 {
-    unsigned int expected[2] = {1, 5};
-    unsigned int actual[2];
+    uint32_t expected[2] = {1, 5};
+    uint32_t actual[2];
     snake_elem_t *snake = snake_get_snake_coords();
 
     prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 1);
@@ -69,11 +69,11 @@ void test_snake_next_brick_coords_after_food_eating(void)
     prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 1);
     snake_food_update();
 
-    unsigned int coords[2];
+    uint32_t coords[2];
     coords[0] = snake[1].x_pos;
     coords[1] = snake[1].y_pos;
 
-    unsigned int coords_expected[2] = {1, 1};
+    uint32_t coords_expected[2] = {1, 1};
 
     TEST_ASSERT_EQUAL_INT_ARRAY(coords_expected, coords, 2);
 }
@@ -87,8 +87,8 @@ void test_snake_second_brick_coords_after_updated_movement(void)
     snake_food_update();
     prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, 1, 3);
 
-    unsigned int coords_actual[2];
-    unsigned int coords_expected[2] = {1, 2};
+    uint32_t coords_actual[2];
+    uint32_t coords_expected[2] = {1, 2};
 
     coords_actual[0] = snake[1].x_pos;
     coords_actual[1] = snake[1].y_pos;
@@ -100,8 +100,8 @@ void test_snake_second_brick_coords_after_updated_movement(void)
 
 void test_snake_tail_coords_with_increased_len(void)
 {
-    unsigned int elems_expected[6] = {7, 2, 6, 2, 5, 2};
-    unsigned int elems_actual[6];
+    uint32_t elems_expected[6] = {7, 2, 6, 2, 5, 2};
+    uint32_t elems_actual[6];
     snake_elem_t *snake = snake_get_snake_coords();
 
     for (int i = 0; i < 2; i++)
@@ -243,8 +243,8 @@ void test_snake_x_coords_after_wall_collision_less_than_min(void)
 void test_snake_x_coords_still_after_wall_colision_left(void)
 {
     snake_elem_t *snake = snake_get_snake_coords();
-    unsigned int elems_expected[6] = {0, 2, 1, 2, 2, 2};
-    unsigned int elems_actual[6];
+    uint32_t elems_expected[6] = {0, 2, 1, 2, 2, 2};
+    uint32_t elems_actual[6];
 
     float current_time;
     /** increase snake len to 3 */
@@ -280,8 +280,8 @@ void test_snake_x_coords_still_after_wall_colision_left(void)
 
 void test_snake_x_coords_still_after_wall_colision_right(void)
 {
-    unsigned int elems_expected[6] = {25, 2, 24, 2, 23, 2};
-    unsigned int elems_actual[6];
+    uint32_t elems_expected[6] = {24, 2, 23, 2, 22, 2};
+    uint32_t elems_actual[6];
 
     float current_time;
 
@@ -323,8 +323,8 @@ void test_snake_x_coords_still_after_wall_colision_right(void)
 void test_snake_y_coords_still_after_wall_collision_up(void)
 {
     snake_elem_t *snake = snake_get_snake_coords();
-    unsigned int elems_expected[6] = {2, 0, 2, 1, 2, 2};
-    unsigned int elems_actual[6];
+    uint32_t elems_expected[6] = {3, 0, 3, 1, 3, 2};
+    uint32_t elems_actual[6];
 
     float current_time;
     /** increase snake len to 3 */
@@ -367,8 +367,8 @@ void test_snake_y_coords_still_after_wall_collision_up(void)
 void test_snake_y_coords_still_after_wall_collision_down(void)
 {
     snake_elem_t *snake = snake_get_snake_coords();
-    unsigned int elems_expected[6] = {2, 15, 2, 14, 2, 13};
-    unsigned int elems_actual[6];
+    uint32_t elems_expected[6] = {2, 14, 2, 13, 2, 12};
+    uint32_t elems_actual[6];
 
     float current_time;
     /** increase snake len to 3 */
@@ -412,11 +412,11 @@ void test_snake_y_coords_still_after_wall_collision_down(void)
 }
 /************************************ HELPER FUNCTIONS IMPLEMENTATION ************************************************************/
 
-static bool prv_move_snake_to_arbitrary_place(unsigned int x_pos_start, unsigned int y_pos_start, unsigned int x_pos_dst, unsigned int y_pos_dst)
+static bool prv_move_snake_to_arbitrary_place(uint32_t x_pos_start, uint32_t y_pos_start, uint32_t x_pos_dst, uint32_t y_pos_dst)
 {
     bool result = true;
-    unsigned int x_distance = x_pos_dst - x_pos_start;
-    unsigned int y_distance = y_pos_dst - y_pos_start;
+    uint32_t x_distance = x_pos_dst - x_pos_start;
+    uint32_t y_distance = y_pos_dst - y_pos_start;
     float current_time = snake_get_time();
 
     movement_t snake_movement;
