@@ -31,7 +31,8 @@ static float prv_snake_movement_update_time;
 
 /************************************** PRIVATE INTERFACE DECLARATION ******************************************************/
 static void prv_snake_peek_new_head_coords(uint32_t *x_pos, uint32_t *y_pos, uint32_t *new_x_pos, uint32_t *new_y_pos);
-static bool prv_check_if_snake_head_update_possible(void);
+static bool prv_check_snake_collisions_with_walls(void);
+static bool prv_check_snake_collisions_with_himself(void);
 static void prv_snake_update_head(void);
 
 void snake_init(uint32_t x_start_head_pos, uint32_t y_start_head_pos)
@@ -51,7 +52,9 @@ bool snake_update(float current_time)
     {
         /* update coordinates of all snake */
 
-        result = prv_check_if_snake_head_update_possible();
+        result = prv_check_snake_collisions_with_walls();
+
+        // result &= ~prv_check_snake_collisions_with_himself();
 
         if (result)
         {
@@ -176,7 +179,7 @@ uint32_t snake_get_len(void)
     return prv_snake_len;
 }
 
-static bool prv_check_if_snake_head_update_possible(void)
+static bool prv_check_snake_collisions_with_walls(void)
 {
 
     uint32_t x_pos = 0;
@@ -191,6 +194,23 @@ static bool prv_check_if_snake_head_update_possible(void)
 
     return true;
 }
+
+static bool prv_check_snake_collisions_with_himself(void)
+{
+    bool result = false;
+
+    for (uint32_t i = 1; i >= prv_snake_len; i++)
+    {
+        if ((prv_snake[0].x_pos == prv_snake[i].x_pos) && (prv_snake[0].y_pos == prv_snake[i].y_pos))
+        {
+            result = true;
+            break;
+        }
+    }
+
+    return result;
+}
+
 static void prv_snake_update_head(void)
 {
     uint32_t new_x_pos = 0;
