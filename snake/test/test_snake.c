@@ -405,7 +405,31 @@ void test_snake_y_coords_still_after_wall_collision_down(void)
     TEST_ASSERT_EQUAL_INT_ARRAY(elems_expected, elems_actual, 6);
 }
 
-void test_snake_collision_detection_with_itself(void)
+/** Checks if collision not occured after snake increased his length by 3 */
+void test_snake_selfcollision_normal_movement(void)
+{
+    snake_elem_t *snake = snake_get_snake_coords();
+    uint32_t elems_expected[6] = {2, 14, 2, 13, 2, 12};
+    uint32_t elems_actual[6];
+    bool result = true;
+
+    float current_time;
+    /** increase snake len above selfcollision brick index checking */
+    for (int i = 0; i < 4; i++)
+    {
+        result = prv_move_snake_to_arbitrary_place(snake[0].x_pos, snake[0].y_pos, i + 1, i + 1);
+        snake_food_update();
+        snake_food_create_new_food(i + 2, i + 2);
+        if (!result)
+        {
+            break;
+        }
+    }
+
+    TEST_ASSERT_EQUAL(true, result);
+}
+
+void test_snake_selfcollision_detection(void)
 {
     snake_elem_t *snake = snake_get_snake_coords();
     uint32_t elems_expected[6] = {2, 14, 2, 13, 2, 12};
@@ -441,8 +465,10 @@ void test_snake_collision_detection_with_itself(void)
     }
 
     /** if collision is detected snake update should return false */
+
     TEST_ASSERT_EQUAL_INT(false, result);
 }
+
 /************************************ HELPER FUNCTIONS IMPLEMENTATION ************************************************************/
 
 static bool prv_move_snake_to_arbitrary_place(uint32_t x_pos_start, uint32_t y_pos_start, uint32_t x_pos_dst, uint32_t y_pos_dst)
@@ -475,7 +501,7 @@ static bool prv_move_snake_to_arbitrary_place(uint32_t x_pos_start, uint32_t y_p
         for (int i = 0; i < ABS(x_distance); i++)
         {
             current_time += SNAKE_UPDATE_TIMEOUT;
-            snake_update(current_time);
+            result &= snake_update(current_time);
         }
     }
 
@@ -491,7 +517,7 @@ static bool prv_move_snake_to_arbitrary_place(uint32_t x_pos_start, uint32_t y_p
         for (int i = 0; i < ABS(y_distance); i++)
         {
             current_time += SNAKE_UPDATE_TIMEOUT;
-            snake_update(current_time);
+            result &= snake_update(current_time);
         }
     }
 

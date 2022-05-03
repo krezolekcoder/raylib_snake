@@ -9,6 +9,7 @@
 #define SNAKE_HEAD_IDX (0U)
 #define SNAKE_SPEED (1U) // 1 block size
 #define MOVEMENT_CNT (4U)
+#define SNAKE_COLLISION_START_BRICK (3U)
 
 typedef struct
 {
@@ -32,7 +33,7 @@ static float prv_snake_movement_update_time;
 /************************************** PRIVATE INTERFACE DECLARATION ******************************************************/
 static void prv_snake_peek_new_head_coords(uint32_t *x_pos, uint32_t *y_pos, uint32_t *new_x_pos, uint32_t *new_y_pos);
 static bool prv_check_snake_collisions_with_walls(void);
-static bool prv_check_snake_collisions_with_himself(void);
+static bool prv_check_snake_self_collision(void);
 static void prv_snake_update_head(void);
 
 void snake_init(uint32_t x_start_head_pos, uint32_t y_start_head_pos)
@@ -50,14 +51,14 @@ bool snake_update(float current_time)
 
     if (current_time - prv_snake_movement_update_time >= SNAKE_UPDATE_TIMEOUT_SEC)
     {
-        /* update coordinates of all snake */
-
+        /* Check collisions - this requires peeking head position of next movement */
         result = prv_check_snake_collisions_with_walls();
-
-        // result &= ~prv_check_snake_collisions_with_himself();
+        result &= ~prv_check_snake_self_collision();
 
         if (result)
         {
+            /* update coordinates of all snake */
+
             for (uint32_t i = prv_snake_len - 1; i >= 1; i--)
             {
                 prv_snake[i].x_pos = prv_snake[i - 1].x_pos;
@@ -154,24 +155,9 @@ bool snake_food_create_new_food(uint32_t x_food_new_pos, uint32_t y_food_new_pos
     return result;
 }
 
-snake_food_status_t snake_food_get_status(void)
-{
-    return prv_snake_food.food_status;
-}
-
 snake_elem_t *snake_get_snake_coords(void)
 {
     return &prv_snake[0];
-}
-
-uint32_t snake_food_get_x_pos(void)
-{
-    return prv_snake_food.x_pos;
-}
-
-uint32_t snake_food_get_y_pos(void)
-{
-    return prv_snake_food.y_pos;
 }
 
 uint32_t snake_get_len(void)
@@ -195,13 +181,19 @@ static bool prv_check_snake_collisions_with_walls(void)
     return true;
 }
 
-static bool prv_check_snake_collisions_with_himself(void)
+static bool prv_check_snake_self_collision(void)
 {
     bool result = false;
 
-    for (uint32_t i = 1; i >= prv_snake_len; i++)
+    uint32_t head_x_pos = 0;
+    uint32_t head_y_pos = 0;
+
+    prv_snake_peek_new_head_coords(&prv_snake[SNAKE_HEAD_IDX].x_pos, &prv_snake[SNAKE_HEAD_IDX].y_pos, &head_x_pos, &head_y_pos);
+
+    /* snake head cannot collide with bricks with ids below 3 */
+    for (uint32_t i = SNAKE_COLLISION_START_BRICK; i < prv_snake_len; i++)
     {
-        if ((prv_snake[0].x_pos == prv_snake[i].x_pos) && (prv_snake[0].y_pos == prv_snake[i].y_pos))
+        if ((head_x_pos == prv_snake[i].x_pos) && (head_y_pos == prv_snake[i].y_pos))
         {
             result = true;
             break;
@@ -255,4 +247,19 @@ static void prv_snake_peek_new_head_coords(uint32_t *x_pos, uint32_t *y_pos, uin
 float snake_get_time(void)
 {
     return prv_snake_movement_update_time;
+}
+
+uint32_t snake_food_get_x_pos(void)
+{
+    return prv_snake_food.x_pos;
+}
+
+uint32_t snake_food_get_y_pos(void)
+{
+    return prv_snake_food.y_pos;
+}
+
+snake_food_status_t snake_food_get_status(void)
+{
+    return prv_snake_food.food_status;
 }
