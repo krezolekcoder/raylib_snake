@@ -18,13 +18,13 @@ static void prv_snake_draw(void);
 static void prv_snake_food_draw(void);
 static void prv_grid_draw(void);
 
-static char prv_current_time_text[100];
+static char prv_current_score[100];
 
 static void prv_snake_food_draw(void);
 
 static uint8_t inputs_buff[100];
 static ring_buffer_t input_ring_buf;
-
+static bool game_state = true;
 int main(void)
 {
     // Initialization
@@ -40,8 +40,6 @@ int main(void)
 
     ring_buffer_init(&input_ring_buf, inputs_buff, sizeof(inputs_buff) / sizeof(uint8_t));
 
-    printf("head %d tail %d capacity %d \r\n", input_ring_buf.head_idx, input_ring_buf.tail_idx, input_ring_buf.buff_capacity);
-
     double input_process_time = GetTime();
     //--------------------------------------------------------------------------------------
     // Main game loop
@@ -53,58 +51,67 @@ int main(void)
 
         KeyboardKey key_pressed = GetKeyPressed();
 
-        if (key_pressed != 0)
+        if (game_state)
         {
-            ring_buffer_write(&input_ring_buf, (uint8_t)key_pressed);
-        }
-
-        if (current_time - input_process_time >= 0.25f)
-        {
-            if (ring_buffer_get_elems_cnt(&input_ring_buf) != 0)
+            if (key_pressed != 0)
             {
-                uint8_t key;
+                ring_buffer_write(&input_ring_buf, (uint8_t)key_pressed);
+            }
 
-                if (ring_buffer_read(&input_ring_buf, &key))
+            if (current_time - input_process_time >= 0.20f)
+            {
+                if (ring_buffer_get_elems_cnt(&input_ring_buf) != 0)
                 {
-                    printf("key read %d", key);
-                    switch (key)
+                    uint8_t key;
+
+                    if (ring_buffer_read(&input_ring_buf, &key))
                     {
-                    case KEY_W:
-                        snake_set_head_movement(MOVEMENT_UP);
-                        break;
-                    case KEY_S:
-                        snake_set_head_movement(MOVEMENT_DOWN);
-                        break;
-                    case KEY_A:
-                        snake_set_head_movement(MOVEMENT_LEFT);
-                        break;
-                    case KEY_D:
-                        snake_set_head_movement(MOVEMENT_RIGHT);
-                        break;
-                    default:
-                        break;
+                        switch (key)
+                        {
+                        case KEY_W:
+                            snake_set_head_movement(MOVEMENT_UP);
+                            break;
+                        case KEY_S:
+                            snake_set_head_movement(MOVEMENT_DOWN);
+                            break;
+                        case KEY_A:
+                            snake_set_head_movement(MOVEMENT_LEFT);
+                            break;
+                        case KEY_D:
+                            snake_set_head_movement(MOVEMENT_RIGHT);
+                            break;
+                        default:
+                            break;
+                        }
                     }
                 }
+
+                input_process_time = current_time;
             }
 
-            input_process_time = current_time;
-        }
-
-        if (snake_update(current_time))
-        {
-            snake_food_update();
-
-            if (snake_food_get_status() == FOOD_GENERATE_NEW)
+            if (snake_update(current_time))
             {
-                bool result = false;
-                do
-                {
-                    uint32_t x_new_food_pos = rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
-                    uint32_t y_new_food_pos = rand() % (SCREEN_HEIGHT_BLOCK_CNT - 1);
+                snake_food_update();
 
-                    result = snake_food_create_new_food(x_new_food_pos, y_new_food_pos);
-                } while (result == false);
+                if (snake_food_get_status() == FOOD_GENERATE_NEW)
+                {
+                    bool result = false;
+                    do
+                    {
+                        uint32_t x_new_food_pos = rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
+                        uint32_t y_new_food_pos = rand() % (SCREEN_HEIGHT_BLOCK_CNT - 1);
+
+                        result = snake_food_create_new_food(x_new_food_pos, y_new_food_pos);
+                    } while (result == false);
+                }
             }
+            else
+            {
+                game_state = false;
+            }
+        }
+        else
+        {
         }
 
         //----------------------------------------------------------------------------------
@@ -120,9 +127,16 @@ int main(void)
         prv_snake_draw();
         prv_snake_food_draw();
 
-        sprintf(prv_current_time_text, " current time %lf", current_time);
+        if (game_state)
+        {
+            sprintf(prv_current_score, " SCORE %d", snake_get_len());
+        }
+        else
+        {
+            sprintf(prv_current_score, " GAME OVER");
+        }
 
-        DrawText((const char *)&prv_current_time_text, 25, 25, 10, BLACK);
+        DrawText((const char *)&prv_current_score, 25, 25, 50, BLACK);
         EndDrawing();
         //----------------------------------------------------------------------------------
     }

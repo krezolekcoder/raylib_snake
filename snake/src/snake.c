@@ -47,7 +47,7 @@ void snake_init(uint32_t x_start_head_pos, uint32_t y_start_head_pos)
 
 bool snake_update(float current_time)
 {
-    bool result = false;
+    bool result = true;
 
     if (current_time - prv_snake_movement_update_time >= SNAKE_UPDATE_TIMEOUT_SEC)
     {
