@@ -53,7 +53,7 @@ bool snake_update(float current_time)
     {
         /* Check collisions - this requires peeking head position of next movement */
         result = prv_check_snake_collisions_with_walls();
-        result &= ~prv_check_snake_self_collision();
+        result &= !prv_check_snake_self_collision();
 
         if (result)
         {

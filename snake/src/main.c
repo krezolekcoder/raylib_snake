@@ -1,27 +1,6 @@
-/*******************************************************************************************
- *
- *   raylib [core] example - Basic window
- *
- *   Welcome to raylib!
- *
- *   To test examples, just press F6 and execute raylib_compile_execute script
- *   Note that compiled executable is placed in the same folder as .c file
- *
- *   You can find all basic examples on C:\raylib\raylib\examples folder or
- *   raylib official webpage: www.raylib.com
- *
- *   Enjoy using raylib. :)
- *
- *   This example has been created using raylib 1.0 (www.raylib.com)
- *   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
- *
- *   Copyright (c) 2013-2016 Ramon Santamaria (@raysan5)
- *
- ********************************************************************************************/
-
 /** How to build
  * Enter in terminal :
- * gcc src/main.c src/snake.c -o game.exe -O3 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+ * gcc src/main.c src/snake.c src/ring_buffer.c -o game.exe -O3 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
  * Compiler : gcc (i686-posix-dwarf-rev0, Built by MinGW-W64 project) 8.1.0
  **/
 
@@ -33,6 +12,7 @@
 #include <time.h>
 #include "config.h"
 #include "snake.h"
+#include "ring_buffer.h"
 
 static void prv_snake_draw(void);
 static void prv_snake_food_draw(void);
@@ -41,6 +21,9 @@ static void prv_grid_draw(void);
 static char prv_current_time_text[100];
 
 static void prv_snake_food_draw(void);
+
+static uint8_t inputs_buff[100];
+static ring_buffer_t input_ring_buf;
 
 int main(void)
 {
@@ -54,6 +37,12 @@ int main(void)
     snake_food_init(7, 7);
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
     srand(current_time);
+
+    ring_buffer_init(&input_ring_buf, inputs_buff, sizeof(inputs_buff) / sizeof(uint8_t));
+
+    printf("head %d tail %d capacity %d \r\n", input_ring_buf.head_idx, input_ring_buf.tail_idx, input_ring_buf.buff_capacity);
+
+    double input_process_time = GetTime();
     //--------------------------------------------------------------------------------------
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
@@ -63,22 +52,42 @@ int main(void)
         //----------------------------------------------------------------------------------
 
         KeyboardKey key_pressed = GetKeyPressed();
-        switch (key_pressed)
+
+        if (key_pressed != 0)
         {
-        case KEY_W:
-            snake_set_head_movement(MOVEMENT_UP);
-            break;
-        case KEY_S:
-            snake_set_head_movement(MOVEMENT_DOWN);
-            break;
-        case KEY_A:
-            snake_set_head_movement(MOVEMENT_LEFT);
-            break;
-        case KEY_D:
-            snake_set_head_movement(MOVEMENT_RIGHT);
-            break;
-        default:
-            break;
+            ring_buffer_write(&input_ring_buf, (uint8_t)key_pressed);
+        }
+
+        if (current_time - input_process_time >= 0.25f)
+        {
+            if (ring_buffer_get_elems_cnt(&input_ring_buf) != 0)
+            {
+                uint8_t key;
+
+                if (ring_buffer_read(&input_ring_buf, &key))
+                {
+                    printf("key read %d", key);
+                    switch (key)
+                    {
+                    case KEY_W:
+                        snake_set_head_movement(MOVEMENT_UP);
+                        break;
+                    case KEY_S:
+                        snake_set_head_movement(MOVEMENT_DOWN);
+                        break;
+                    case KEY_A:
+                        snake_set_head_movement(MOVEMENT_LEFT);
+                        break;
+                    case KEY_D:
+                        snake_set_head_movement(MOVEMENT_RIGHT);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+
+            input_process_time = current_time;
         }
 
         if (snake_update(current_time))
