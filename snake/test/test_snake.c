@@ -6,7 +6,7 @@
 
 #define ABS(x) ((x > 0) ? x : -x)
 
-#define SNAKE_UPDATE_TIMEOUT (0.21f)
+#define SNAKE_UPDATE_TIMEOUT (SNAKE_UPDATE_TIMEOUT_SEC + 0.1f)
 
 void setUp(void)
 {

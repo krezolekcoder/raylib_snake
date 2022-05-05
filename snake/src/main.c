@@ -1,6 +1,6 @@
 /** How to build
  * Enter in terminal :
- * gcc src/main.c src/snake.c src/ring_buffer.c -o game.exe -O3 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+ * gcc src/main.c src/snake.c src/ring_buffer.c -o snake.exe -O3 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
  * Compiler : gcc (i686-posix-dwarf-rev0, Built by MinGW-W64 project) 8.1.0
  **/
 
@@ -129,7 +129,7 @@ int main(void)
 
         if (game_state)
         {
-            sprintf(prv_current_score, " SCORE %d", snake_get_len());
+            sprintf(prv_current_score, " SCORE %d", snake_get_len() - 1);
         }
         else
         {
