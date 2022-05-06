@@ -14,17 +14,17 @@
 #include "snake.h"
 #include "ring_buffer.h"
 
-static void prv_snake_draw(void);
-static void prv_snake_food_draw(void);
-static void prv_grid_draw(void);
-
 static char prv_current_score[100];
-
-static void prv_snake_food_draw(void);
-
 static uint8_t inputs_buff[100];
 static ring_buffer_t input_ring_buf;
 static bool game_state = true;
+
+static void prv_snake_draw(void);
+static void prv_snake_food_draw(void);
+static void prv_grid_draw(void);
+static void prv_snake_food_draw(void);
+static void prv_snake_update_movement(uint8_t *key_pressed);
+
 int main(void)
 {
     // Initialization
@@ -52,12 +52,14 @@ int main(void)
         KeyboardKey key_pressed = GetKeyPressed();
 
         if (game_state)
-        {
+        {   
+            /** Check if some key was pressed */ 
             if (key_pressed != 0)
             {
                 ring_buffer_write(&input_ring_buf, (uint8_t)key_pressed);
             }
 
+            /** Slow down dispatching of the buffer with keys pressed */ 
             if (current_time - input_process_time >= 0.20f)
             {
                 if (ring_buffer_get_elems_cnt(&input_ring_buf) != 0)
@@ -66,28 +68,16 @@ int main(void)
 
                     if (ring_buffer_read(&input_ring_buf, &key))
                     {
-                        switch (key)
-                        {
-                        case KEY_W:
-                            snake_set_head_movement(MOVEMENT_UP);
-                            break;
-                        case KEY_S:
-                            snake_set_head_movement(MOVEMENT_DOWN);
-                            break;
-                        case KEY_A:
-                            snake_set_head_movement(MOVEMENT_LEFT);
-                            break;
-                        case KEY_D:
-                            snake_set_head_movement(MOVEMENT_RIGHT);
-                            break;
-                        default:
-                            break;
-                        }
                     }
+
+                    prv_snake_update_movement(key); 
                 }
 
                 input_process_time = current_time;
             }
+
+            /** Update snake and snake food if needed. If game state is false that means game over because
+             * collision has happened  */ 
 
             if (snake_update(current_time))
             {
@@ -174,4 +164,25 @@ static void prv_snake_draw(void)
 static void prv_snake_food_draw(void)
 {
     DrawRectangle(snake_food_get_x_pos() * BLOCK_SIZE, snake_food_get_y_pos() * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, RED);
+}
+
+static void prv_snake_update_movement(uint8_t key_pressed)
+{
+    switch (key_pressed)
+    {
+    case KEY_W:
+        snake_set_head_movement(MOVEMENT_UP);
+        break;
+    case KEY_S:
+        snake_set_head_movement(MOVEMENT_DOWN);
+        break;
+    case KEY_A:
+        snake_set_head_movement(MOVEMENT_LEFT);
+        break;
+    case KEY_D:
+        snake_set_head_movement(MOVEMENT_RIGHT);
+        break;
+    default:
+        break;
+    }
 }
