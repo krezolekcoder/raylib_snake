@@ -86,6 +86,7 @@ int main(void)
                 if (snake_food_get_status() == FOOD_GENERATE_NEW)
                 {
                     bool result = false;
+                    
                     do
                     {
                         uint32_t x_new_food_pos = rand() % (SCREEN_WIDTH_BLOCK_CNT - 1);
