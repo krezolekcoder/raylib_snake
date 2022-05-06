@@ -48,7 +48,6 @@ int main(void)
         current_time = GetTime();
         // Update
         //----------------------------------------------------------------------------------
-
         KeyboardKey key_pressed = GetKeyPressed();
 
         if (game_state)
