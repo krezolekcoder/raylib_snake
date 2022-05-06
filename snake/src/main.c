@@ -52,12 +52,13 @@ int main(void)
 
         if (game_state)
         {   
-            
+
             /** Check if some key was pressed */ 
             if (key_pressed != 0)
             {
                 ring_buffer_write(&input_ring_buf, (uint8_t)key_pressed);
             }
+
 
             /** Slow down dispatching of the buffer with keys pressed */ 
             if (current_time - input_process_time >= 0.20f)
