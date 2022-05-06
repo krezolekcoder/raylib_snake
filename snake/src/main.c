@@ -52,6 +52,7 @@ int main(void)
 
         if (game_state)
         {   
+            
             /** Check if some key was pressed */ 
             if (key_pressed != 0)
             {
