@@ -63,7 +63,6 @@ int main(void)
                 ring_buffer_write(&input_ring_buf, (uint8_t)key_pressed);
             }
 
-
             /** Slow down dispatching of the buffer with keys pressed */
             if (current_time - input_process_time >= 0.20f) {
                 if (ring_buffer_get_elems_cnt(&input_ring_buf) != 0) {
